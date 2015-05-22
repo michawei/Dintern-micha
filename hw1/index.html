@@ -1,0 +1,42 @@
+<html>
+	<head>
+		<script src='/Users/Mi-Cha/js/jquery-2.1.4.min.js'></script>
+		<script>
+			$(function(){
+				$('#ClickBtm').click(function(){
+					console.log( $('#textInput').val());
+					$('#title').css('display', 'none');
+					$('#name').css('display', 'none');
+					$('#ClickBtm').css('display', 'none');
+
+					$('#Chat_display').css('display', 'block');
+					$('#Chat_title').css('display', 'block');
+					$('#Chat_textInput').css('display', 'block');
+					$('#Chat_ClickBtm').css('display', 'block');
+				});
+			});
+		</script>
+	</head>
+
+	<body>
+		<br><br/>
+		<font color='green' id='title'> user name : </font>
+		<input type='text' id='name' style="width:200px; height:25px; font-size:15px" />
+		<input type='button' id='ClickBtm' value='summit' style="width:100px; height:50px; font-size:50px;" />
+
+	    <div style="display:none; font-size: 15px; background-color: #8ABB55; width:500px; height:200px;" id='Chat_display'></div>
+		<font color='green' id='Chat_title' style="display:none;"> What you want to say : </font>
+		<input type='text' id='Chat_textInput' style="display:none; width:500px; height:25px; font-size:15px;" />
+		<input type='button' id='Chat_ClickBtm' value='summit' style="display:none; width:100px; height:50px; font-size:50px;" />
+		<script>
+            var string=document.getElementById("Chat_display");
+            string.innerHTML = ""
+            $(function(){
+                $('#Chat_ClickBtm').click(function(){
+                    string.innerHTML += document.getElementById("name").value + " : "
+                    string.innerHTML += document.getElementById("Chat_textInput").value + "<br/>"
+                });
+            });
+    	</script>
+	</body>
+</html>

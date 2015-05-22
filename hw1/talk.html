@@ -1,0 +1,44 @@
+<html>
+	<head>
+		<script src='/Users/Mi-Cha/js/jquery-2.1.4.min.js'></script>
+        <script>
+            var queryString = new Array();
+            $(function () {
+                if (queryString.length == 0) {
+                    if (window.location.search.split('?').length > 1) {
+                        var params = window.location.search.split('?')[1].split('&');
+                        for (var i = 0; i < params.length; i++) {
+                           var key = params[i].split('=')[0];
+                           var value = decodeURIComponent(params[i].split('=')[1]);
+                           queryString[key] = value;
+                        }
+                    }
+                }
+                if (queryString['name'] != null){
+                    document.getElementById('name').value = queryString['name'];
+                    console.log($('#name').val());
+                }
+            });
+        </script>
+	</head>
+
+	<body>
+        
+        <div style="font-size: 15px; background-color: #8ABB55; width:500px; height:200px" id="display"></div>
+		<font color="green"> say : </font>
+		<input type='text' id='Chat_textInput' style='width:500px; height:25px; font-size:15px' />
+		<input type='button' id='Chat_ClickBtm' value='summit' style='width:100px; height:50px; font-size:50px' />
+
+        <script>
+            var string=document.getElementById("display");
+            string.innerHTML = ""
+            $(document).ready(function(){
+                $('#ClickBtm').click(function(){
+                    string.innerHTML += document.getElementById("name").value + " : "
+                    string.innerHTML += document.getElementById("textInput").value + "<br/>"
+                });
+            });
+        </script>
+	</body>
+
+</html>
