@@ -3,7 +3,7 @@ extends layout
 block content
   style.
     body{
-      background-color: black;
+      background-color: white;
     }
     #draggable{
       width: 150px;
@@ -12,15 +12,82 @@ block content
       border: 1px solid rgba(127, 255, 255, 0.25);
     }
   script.
+    $('#chat_display').html("");
     $(function(){
       var socket = io();
-      $('#draggable').draggable({
+      var name;
+
+      /*$('#draggable').draggable({
         stop: function(event, ui){
           socket.emit('update', ui.position);
         }
+      });*/
+
+      $('#name_click').click(function(){
+        name = $('#name').val();
+        $('#chat_display').append("Hello, " + name + ". Welcome to chat ! \n");
+        $('#name_title').css('display', 'none');
+        $('#name').css('display', 'none');
+        $('#name_click').css('display', 'none');
+
+        $('#chat_title').css('display', 'block');
+        $('#chat_input').css('display', 'block');
+        $('#chat_click').css('display', 'block');
+        $('#chat_display').css('display', 'block');
       });
+
+      $('#chat_click').click(function(){
+        var user_self = {username:"", input_text:""};
+        user_self.username = name;
+        user_self.input_text = document.getElementById('chat_input').value;
+        socket.emit('chat', user_self);
+        //$('#chat_display').append(user_self.username + " : ");
+        //$('#chat_display').append(user_self.input_text + "<br/>");
+        document.getElementById('chat_input').value = "";
+      });
+
       socket.on('update', function(pos){
         $('#draggable').css({'top': pos.top, 'left': pos.left});
       });
+
+      socket.on('chat', function(user){
+        $('#chat_display').append( user.username + " : ");
+        $('#chat_display').append(user.input_text + "\n");
+        document.getElementById('chat_display').scrollTop = document.getElementById('chat_display').scrollHeight;
+        //$('#chat_display').html("Hello, Micha<br/>");
+        //$('#chat_display').html(string);
+        //display.innerHTML += string +"<br/>"
+      });
     })
-  div#draggable
+  font(id = 'name_title') your name:
+  input(
+    type = 'text'
+    id = 'name'
+    style="width:200px; height:20px; font-size:15px;"
+  )
+  input(
+    type = 'button'
+    id = 'name_click'
+    value = 'summit'
+    style = "width:100px; height:50px; font-size:50px;"
+  )
+  <br/>
+  font(id = 'chat_title' style="display:none;") chat:
+  input(
+    type = 'text'
+    id = 'chat_input'
+    style="display:none; width:500px; height:20px; font-size:15px; overflow:auto;"
+  )
+  input(
+    type = 'button'
+    id = 'chat_click'
+    value = 'summit'
+    style="display:none; width:100px; height:50px; font-size:50px;"
+  )
+  <br/>
+  textarea(
+    id = 'chat_display'
+    style="display:none; font-size: 20px;"
+    rows="10"
+    cols="80" 
+  )
