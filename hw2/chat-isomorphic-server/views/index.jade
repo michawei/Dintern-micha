@@ -41,6 +41,36 @@ block content
         user_self.username = name;
         user_self.input_text = document.getElementById('chat_input').value;
         socket.emit('chat', user_self);
+
+        // send data to todos
+        $.ajax({
+
+          url: "http://localhost:3000/todos",
+
+          data:{
+            name: name,
+            completed: "True",
+            note: user_self.input_text,
+            updated_at: Date.now,
+          },
+          
+          type: "POST",
+          
+          dataType: "json",
+
+          success: function(){
+            console.log("success.");
+          },
+          
+          error: function(){
+            console.log("error.");
+          },
+          
+          complete: function() {
+            console.log("complete.");
+          }
+
+        });
         //$('#chat_display').append(user_self.username + " : ");
         //$('#chat_display').append(user_self.input_text + "<br/>");
         document.getElementById('chat_input').value = "";
@@ -59,7 +89,7 @@ block content
         //display.innerHTML += string +"<br/>"
       });
     })
-  font(id = 'name_title') your name:
+  font(id = 'name_title' style="font-size:20px;") your name:
   input(
     type = 'text'
     id = 'name'
@@ -71,12 +101,19 @@ block content
     value = 'summit'
     style = "width:100px; height:50px; font-size:50px;"
   )
+  textarea(
+    id = 'chat_display'
+    style="display:none; font-size: 20px;"
+    rows="10"
+    cols="80" 
+  )
   <br/>
-  font(id = 'chat_title' style="display:none;") chat:
-  input(
-    type = 'text'
+  font(id = 'chat_title' style="display:none; font-size:20px;") what you want to say:
+  textarea(
+    rows="1"
+    cols="80"
     id = 'chat_input'
-    style="display:none; width:500px; height:20px; font-size:15px; overflow:auto;"
+    style="display:none; font-size:20px; overflow:auto;"
   )
   input(
     type = 'button'
@@ -85,9 +122,3 @@ block content
     style="display:none; width:100px; height:50px; font-size:50px;"
   )
   <br/>
-  textarea(
-    id = 'chat_display'
-    style="display:none; font-size: 20px;"
-    rows="10"
-    cols="80" 
-  )
