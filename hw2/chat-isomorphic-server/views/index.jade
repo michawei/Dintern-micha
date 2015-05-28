@@ -22,6 +22,24 @@ block content
           socket.emit('update', ui.position);
         }
       });*/
+      $('#name').keypress(function(e){
+        if(e.keyCode == 13){
+          if( $('#name').val()!="" ){
+            $('#name_click').click();
+          }
+          else{
+            alert("Please enter your name.");
+          }
+        }
+      });
+
+      $('#chat_input').keypress(function(e){
+        if(e.keyCode == 13){
+          if( $('#chat_input').val()!="" ){
+            $('#chat_click').click();
+          }
+        }
+      });
 
       $('#name_click').click(function(){
         name = $('#name').val();
@@ -45,7 +63,7 @@ block content
         // send data to todos
         $.ajax({
 
-          url: "http://localhost:3000/todos",
+          url: "http://140.112.228.146:3000/todos",
 
           data:{
             name: name,
@@ -89,36 +107,36 @@ block content
         //display.innerHTML += string +"<br/>"
       });
     })
-  font(id = 'name_title' style="font-size:20px;") your name:
-  input(
-    type = 'text'
-    id = 'name'
-    style="width:200px; height:20px; font-size:15px;"
-  )
-  input(
-    type = 'button'
-    id = 'name_click'
-    value = 'summit'
-    style = "width:100px; height:50px; font-size:50px;"
-  )
-  textarea(
-    id = 'chat_display'
-    style="display:none; font-size: 20px;"
-    rows="10"
-    cols="80" 
-  )
-  <br/>
-  font(id = 'chat_title' style="display:none; font-size:20px;") what you want to say:
-  textarea(
-    rows="1"
-    cols="80"
-    id = 'chat_input'
-    style="display:none; font-size:20px; overflow:auto;"
-  )
-  input(
-    type = 'button'
-    id = 'chat_click'
-    value = 'summit'
-    style="display:none; width:100px; height:50px; font-size:50px;"
-  )
+  center
+    font(id = 'name_title' style="font-size:20px;") your name:
+    input(
+      type = 'text'
+      id = 'name'
+      style="width:200px; height:20px; font-size:15px;"
+    )
+    input(
+      type = 'button'
+      id = 'name_click'
+      value = 'summit'
+      style = "width:100px; height:50px; font-size:50px;"
+    )
+  center
+    textarea(
+      id = 'chat_display'
+      style="display:none; font-size: 20px;"
+      rows="10"
+      cols="80" 
+    )
+    <br/>
+    font(id = 'chat_title' style="display:none; font-size:20px;") what you want to say: 
+    input(
+      id = 'chat_input'
+      style="display:none; font-size:20px; overflow:auto; width:820px; height:20px;"
+    )
+    input(
+      type = 'button'
+      id = 'chat_click'
+      value = 'summit'
+      style="display:none; width:100px; height:50px; font-size:50px;"
+    )
   <br/>
