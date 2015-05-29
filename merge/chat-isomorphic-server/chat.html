@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src = 'vendor/angular/angular.min.js'>
+			// ng-controller
+			var app = angular.module('basicApp', []]).controller('chatCtrl', function($scope, $http){
+				// http
+				$http.get('http://localhost:3000/todos')
+
+			});
+		</script>
+	</head>
+	<body>
+		<div ng-app='basicApp' ng-controller='personCtrl' ng-init='
+			person_data={Name:"Micha Wei"};
+			fib=[2,3,5,8,13]'>
+		</div>
+	</body>
+</html>

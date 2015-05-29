@@ -11,32 +11,15 @@ var todos = require('./routes/todos');
 
 var app = express();
 
-var mongoose = require('mongoose');
+/*var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/chat-isomorphic-server:server', function(err) {
     if(err) {
-        console.log('connection error', err);
+        console.log('mongodb connection error', err);
     } else {
-        console.log('connection successful');
+        console.log('mongodb connection successful');
     }
-});
-/*
-var db = mongoose.connection;
+});*/
 
-db.on('error', function (err) {
-  console.log('connection error', err);
-});
-db.once('open', function () {
-  console.log('connected.');
-});
-
-var Schema = mongoose.Schema;
-var user_Schema = new Schema({
-  name: String,
-  completed: Boolean,
-  note: String,
-  updated_at: { type: Date, default: Date.now },
-});
-*/
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

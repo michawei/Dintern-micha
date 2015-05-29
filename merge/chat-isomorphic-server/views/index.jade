@@ -1,0 +1,79 @@
+extends layout
+
+block content
+  title.
+    Chat Room
+  style.
+    body{
+      background-color: white;
+    }
+  script.
+    var socket = io();
+    var app = angular.module('chatApp', [])
+    app.controller('chatCtrl', function($scope, $http, $rootScope){
+      // http
+      $http.get('http://localhost:3000/todos')
+
+      //socket.io
+      socket.on('chat', function(user){
+        console.log(user.username + " "+ user.input_text);
+        var tmp = user.username + " : " + user.input_text + "\n"
+        $scope.chat_display = $scope.chat_display + tmp;
+      })
+      
+      $scope.emit_msg = function(){
+        //var user_self = {username: $scope.name_text, input_text: text};
+        socket.emit('chat', {username: $scope.name_text, input_text: $scope.chat_text});
+        //$http.post('http://localhost:3000/todos')
+      }
+
+      $scope.deplay = function(){
+
+      }
+    });
+    app.directive('addText', ['$rootScope', function($rootScope) {
+      return {
+        link: function(scope, element, attrs) {
+          $rootScope.$on('add', function(e, val) {
+            var domElement = element[0];
+
+            if (document.selection) {
+              domElement.focus();
+              var sel = document.selection.createRange();
+              sel.text = val;
+              domElement.focus();
+            } else if (domElement.selectionStart || domElement.selectionStart === 0) {
+              var startPos = domElement.selectionStart;
+              var endPos = domElement.selectionEnd;
+              var scrollTop = domElement.scrollTop;
+              domElement.value = domElement.value.substring(0, startPos) + val + domElement.value.substring(endPos, domElement.value.length);
+              domElement.focus();
+              domElement.selectionStart = startPos + val.length;
+              domElement.selectionEnd = startPos + val.length;
+              domElement.scrollTop = scrollTop;
+            } else {
+              domElement.value += val;
+              domElement.focus();
+            }
+
+          });
+        }
+      }
+}])
+
+  body
+    div(ng-app='chatApp' ng-controller='chatCtrl' ng-init="flag=0; val1=123; val2=567")
+      h1(ng-show='!flag') &nbsp;&nbsp;Chat Room
+      blockquote
+        p(ng-show='!flag') Enter your name ：&nbsp;&nbsp;
+          input(ng-show='!flag' type='text' ng-model='name_text' ng-enter='doSomething()')
+          &nbsp;&nbsp;
+          button(ng-show='!flag' ng-click='flag=1;') start
+      h1(ng-show='flag') &nbsp;&nbsp;Hello {{name_text}}, Welcome to chat !
+      blockquote
+        textarea(ng-show='flag' ng-model='chat_display' style = "font-size: 20px;" rows = "10" cols = "80" readonly = "readonly")  
+        br
+        br
+        input(ng-show='flag' type='text' ng-model='chat_text' style="overflow:auto; width:820px; height:20px;")
+        &nbsp;&nbsp;  
+        button(ng-show='flag' ng-model='chat_button' ng-click='emit_msg(); chat_text="";') send

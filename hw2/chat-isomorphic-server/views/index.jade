@@ -1,27 +1,19 @@
 extends layout
 
 block content
+  title.
+    Chat Room
   style.
     body{
       background-color: white;
     }
-    #draggable{
-      width: 150px;
-      height: 150px;
-      box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.5);
-      border: 1px solid rgba(127, 255, 255, 0.25);
-    }
+
   script.
     $('#chat_display').html("");
     $(function(){
       var socket = io();
       var name;
 
-      /*$('#draggable').draggable({
-        stop: function(event, ui){
-          socket.emit('update', ui.position);
-        }
-      });*/
       $('#name').keypress(function(e){
         if(e.keyCode == 13){
           if( $('#name').val()!="" ){
@@ -52,6 +44,15 @@ block content
         $('#chat_input').css('display', 'block');
         $('#chat_click').css('display', 'block');
         $('#chat_display').css('display', 'block');
+
+        $.get("http://localhost:3000/todos", function(raw_data){
+          for(var obj in raw_data){
+            //console.log(raw_data[obj].note);
+            $('#chat_display').append( raw_data[obj].name + " : ");
+            $('#chat_display').append( raw_data[obj].note + "\n");
+          }
+          document.getElementById('chat_display').scrollTop = document.getElementById('chat_display').scrollHeight;
+        });
       });
 
       $('#chat_click').click(function(){
@@ -61,9 +62,15 @@ block content
         socket.emit('chat', user_self);
 
         // send data to todos
-        $.ajax({
+        $.post("http://localhost:3000/todos",
+          { name: name,
+            completed: "True",
+            note: user_self.input_text,
+            updated_at: Date.now,
+          });
+        /*$.ajax({
 
-          url: "http://140.112.228.146:3000/todos",
+          url: "http://localhost:3000/todos",
 
           data:{
             name: name,
@@ -88,7 +95,7 @@ block content
             console.log("complete.");
           }
 
-        });
+        });*/
         //$('#chat_display').append(user_self.username + " : ");
         //$('#chat_display').append(user_self.input_text + "<br/>");
         document.getElementById('chat_input').value = "";
@@ -100,43 +107,45 @@ block content
 
       socket.on('chat', function(user){
         $('#chat_display').append( user.username + " : ");
-        $('#chat_display').append(user.input_text + "\n");
+        $('#chat_display').append( user.input_text + "\n");
         document.getElementById('chat_display').scrollTop = document.getElementById('chat_display').scrollHeight;
-        //$('#chat_display').html("Hello, Micha<br/>");
-        //$('#chat_display').html(string);
-        //display.innerHTML += string +"<br/>"
       });
     })
   center
-    font(id = 'name_title' style="font-size:20px;") your name:
+    <br/>
+    font(id = 'name_title' style="font-size:20px;") your name：
     input(
       type = 'text'
       id = 'name'
       style="width:200px; height:20px; font-size:15px;"
     )
+    &nbsp;&nbsp;
     input(
       type = 'button'
       id = 'name_click'
-      value = 'summit'
-      style = "width:100px; height:50px; font-size:50px;"
+      value = 'start'
+      style = "width:70px; height:50px; font-size:50px;"
     )
   center
+    <br/>
     textarea(
       id = 'chat_display'
-      style="display:none; font-size: 20px;"
-      rows="10"
-      cols="80" 
+      style = "display:none; font-size: 20px;"
+      rows = "10"
+      cols = "80"
+      readonly = "readonly"
     )
     <br/>
-    font(id = 'chat_title' style="display:none; font-size:20px;") what you want to say: 
+    font(id = 'chat_title' style="display:none; font-size:20px;") what you want to say：
     input(
       id = 'chat_input'
-      style="display:none; font-size:20px; overflow:auto; width:820px; height:20px;"
+      style = "display:none; font-size:20px; overflow:auto; width:820px; height:20px;"
     )
+    &nbsp;&nbsp;
     input(
       type = 'button'
       id = 'chat_click'
-      value = 'summit'
-      style="display:none; width:100px; height:50px; font-size:50px;"
+      value = 'send'
+      style = "display:none; width:100px; height:50px; font-size:50px;"
     )
   <br/>
