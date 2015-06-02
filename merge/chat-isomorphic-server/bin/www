@@ -32,12 +32,10 @@ app.set('port', port);
 
 var server = http.createServer(app);
 var user_self = {username:"", input_text:""};
-console.log(pos);
 
 io = io.listen(server);
 io.on('connection', function(socket){
   console.log('User connected. Socket id %s', socket.id);
-  io.emit('update', pos);
   //io.emit('chat', string);
 
   socket.on('disconnect', function(){

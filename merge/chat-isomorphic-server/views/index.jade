@@ -9,29 +9,43 @@ block content
     }
   script.
     var socket = io();
-    var app = angular.module('chatApp', [])
+    var app = angular.module('chatApp', []);
     app.controller('chatCtrl', function($scope, $http, $rootScope){
-      // http
-      $http.get('http://localhost:3000/todos')
 
+      $scope.items = [];
       //socket.io
       socket.on('chat', function(user){
-        console.log(user.username + " "+ user.input_text);
-        var tmp = user.username + " : " + user.input_text + "\n"
-        $scope.chat_display = $scope.chat_display + tmp;
+        //console.log(user.username + " "+ user.input_text);
+        var tmp = user.username + " : " + user.input_text + "\n";
+        $scope.items.push(tmp);
+        $rootScope.$broadcast('add', tmp);
+        //console.log("long ??? =" + $scope.items);
       })
+
+      $scope.first_load = function(){
+        $http.get('http://localhost:3000/todos').success(function(raw_data){
+          //console.log(raw_data);
+          for(var obj in raw_data){
+            var tmp = raw_data[obj].name + " : " + raw_data[obj].note + "\n";
+            $scope.items.push(tmp);
+            $rootScope.$broadcast('add', tmp);
+          }
+        })
+      }
       
       $scope.emit_msg = function(){
-        //var user_self = {username: $scope.name_text, input_text: text};
+        //var user_self = {username: $scope.name_text, input_text: chat_text};
         socket.emit('chat', {username: $scope.name_text, input_text: $scope.chat_text});
-        //$http.post('http://localhost:3000/todos')
+        $http.post('http://localhost:3000/todos', {
+          name: $scope.name_text,
+          completed: "True",
+          note: $scope.chat_text,
+          updated_at: Date.now,
+        });
       }
 
-      $scope.deplay = function(){
-
-      }
     });
-    app.directive('addText', ['$rootScope', function($rootScope) {
+    app.directive('myText', ['$rootScope', function($rootScope) {
       return {
         link: function(scope, element, attrs) {
           $rootScope.$on('add', function(e, val) {
@@ -45,12 +59,12 @@ block content
             } else if (domElement.selectionStart || domElement.selectionStart === 0) {
               var startPos = domElement.selectionStart;
               var endPos = domElement.selectionEnd;
-              var scrollTop = domElement.scrollTop;
+              //var scrollTop = domElement.scrollTop;
               domElement.value = domElement.value.substring(0, startPos) + val + domElement.value.substring(endPos, domElement.value.length);
               domElement.focus();
               domElement.selectionStart = startPos + val.length;
               domElement.selectionEnd = startPos + val.length;
-              domElement.scrollTop = scrollTop;
+              domElement.scrollTop = domElement.scrollHeight;
             } else {
               domElement.value += val;
               domElement.focus();
@@ -59,19 +73,19 @@ block content
           });
         }
       }
-}])
+    }]);
 
   body
-    div(ng-app='chatApp' ng-controller='chatCtrl' ng-init="flag=0; val1=123; val2=567")
+    div(ng-app='chatApp' ng-controller='chatCtrl' ng-init="flag=0; val1=123; val2=567;")
       h1(ng-show='!flag') &nbsp;&nbsp;Chat Room
       blockquote
         p(ng-show='!flag') Enter your name ：&nbsp;&nbsp;
-          input(ng-show='!flag' type='text' ng-model='name_text' ng-enter='doSomething()')
-          &nbsp;&nbsp;
-          button(ng-show='!flag' ng-click='flag=1;') start
-      h1(ng-show='flag') &nbsp;&nbsp;Hello {{name_text}}, Welcome to chat !
+        input(ng-show='!flag' type='text' ng-model='name_text' ng-enter='doSomething()')
+        &nbsp;&nbsp;
+        button(ng-show='!flag' ng-click='flag=1; first_load();') start
+        h1(ng-show='flag') &nbsp;&nbsp;Hello {{name_text}}, Welcome to chat !
       blockquote
-        textarea(ng-show='flag' ng-model='chat_display' style = "font-size: 20px;" rows = "10" cols = "80" readonly = "readonly")  
+        textarea(ng-show='flag' ng-model='chat_display' my-text="" style = "font-size: 20px;" rows = "10" cols = "80" readonly = "readonly")  
         br
         br
         input(ng-show='flag' type='text' ng-model='chat_text' style="overflow:auto; width:820px; height:20px;")
