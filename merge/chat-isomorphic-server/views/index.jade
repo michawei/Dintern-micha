@@ -6,13 +6,13 @@ block content
 
   script.
     var socket = io();
-    var app = angular.module('chatApp', ['luegg.directives']);
+    var app = angular.module('chatApp', []);
 
-    app.controller('chatCtrl', function($scope, $http){
+    app.controller('chatCtrl', function($scope, $http, $rootScope){
 
       $scope.messages = [];
       $scope.users = [];
-
+      
       //socket.io
 
       socket.on('user', function(user){
@@ -23,6 +23,7 @@ block content
       socket.on('chat', function(message){
         $scope.messages = message;
         $scope.$apply($scope.messages);
+        $rootScope.$broadcast('scroll');
       })
 
       $scope.first_load = function(){
@@ -40,6 +41,17 @@ block content
       }
 
     })
+    
+    app.directive('scrollBottom', ['$rootScope', function($rootScope){
+      return {
+        link: function (scope, element) {
+          $rootScope.$on('scroll', function () {
+            var domElement = element[0];
+            domElement.scrollTop = domElement.scrollHeight;
+          });
+        }
+      }
+    }])
 
   body
     div(ng-app = "chatApp" ng-controller = "chatCtrl" ng-init = "flag=0; val1=123; val2=567; init();")
@@ -58,11 +70,11 @@ block content
         h1 &nbsp;&nbsp;Hello {{name_text}}, Welcome to chat !
         blockquote
           form(class="form-inline" role="form")
-            div(scroll-glue-bottom="glued" class = "form-control" ng-model = "chat_display" style = "backgroud: white; overflow:auto; width:820px; height: 400px;")
-              //-span(ng-repeat="chat in messages track by $index") <b>{{chat.name}} :</b> {{chat.note}} <br/>
+            div(class = "form-control" scroll-bottom="" ng-model = "chat_display" style = "backgroud: white; overflow:auto; width:820px; height: 400px;")
               p(ng-repeat="chat in messages track by $index") <b>{{chat.name}} :</b> {{chat.note}}
             &nbsp;&nbsp;
             div(class = "form-control" ng-model = "user_display" style = "backgroud: white; overflow:auto; width:220px; height: 400px;")
+              p(style= "color: orange; font-size: 20px;") <b>Online users</b>
               p(ng-repeat="user in users track by $index") <b>{{user}}</b>
           br
           form(class="form-inline" role="form")

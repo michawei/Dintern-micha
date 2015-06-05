@@ -5,4 +5,7 @@ May - Augest
 html, jQuery
 
 ## hw2
-server, socket.io, node.js
+server, socket.io, node.js, express.js, jade
+
+## Merge
+angularjs
