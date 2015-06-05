@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 var io = require('socket.io');
-
+io.disconnect;
 /**
  * Module dependencies.
  */
@@ -19,6 +19,13 @@ mongoose.connect('mongodb://localhost/chat-isomorphic-server:server', function(e
     }
 });
 
+// use to delete all.
+/*
+mongoose.connection.collections['todos'].drop( function(err) {
+    console.log('collection dropped');
+});
+*/
+
 /**
  * Get port from environment and store in Express.
  */
@@ -31,22 +38,40 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-var user_self = {username:"", input_text:""};
+var users = [];
+var messages = [];
+var socket_user = {};
 
 io = io.listen(server);
 io.on('connection', function(socket){
   console.log('User connected. Socket id %s', socket.id);
-  //io.emit('chat', string);
+  io.emit('chat', messages);
+  io.emit('user', socket_user);
 
   socket.on('disconnect', function(){
     console.log('User disconnected. Socket id %s', socket.id);
+    delete socket_user[socket.id];
+    io.emit('user', socket_user);
   });
 
-  socket.on('chat' , function(_user_self){
-    user_self = _user_self;
-    io.emit('chat', user_self);
+ /* socket.on('user' , function(_users){
+    users = _users;
+    socket_user[socket.id] = users[users.length-1];
+    console.log(socket_user);
+    io.emit('user', users);
+  });*/
+
+  socket.on('user' , function(_name){
+    socket_user[socket.id] = _name;
+    console.log(socket_user);
+    io.emit('user', socket_user);
   });
-  
+
+  socket.on('chat' , function(_messages){
+    messages = _messages;
+    io.emit('chat', messages);
+  });
+
 });
 
 /**

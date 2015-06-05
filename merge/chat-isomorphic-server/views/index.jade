@@ -3,91 +3,69 @@ extends layout
 block content
   title.
     Chat Room
-  style.
-    body{
-      background-color: white;
-    }
+
   script.
     var socket = io();
-    var app = angular.module('chatApp', []);
-    app.controller('chatCtrl', function($scope, $http, $rootScope){
+    var app = angular.module('chatApp', ['luegg.directives']);
 
-      $scope.items = [];
+    app.controller('chatCtrl', function($scope, $http){
+
+      $scope.messages = [];
+      $scope.users = [];
+
       //socket.io
-      socket.on('chat', function(user){
-        //console.log(user.username + " "+ user.input_text);
-        var tmp = user.username + " : " + user.input_text + "\n";
-        $scope.items.push(tmp);
-        $rootScope.$broadcast('add', tmp);
-        //console.log("long ??? =" + $scope.items);
+
+      socket.on('user', function(user){
+        $scope.users = user;
+        $scope.$apply($scope.users);
+      })
+
+      socket.on('chat', function(message){
+        $scope.messages = message;
+        $scope.$apply($scope.messages);
       })
 
       $scope.first_load = function(){
+        socket.emit('user', $scope.name_text);
         $http.get('http://localhost:3000/todos').success(function(raw_data){
-          //console.log(raw_data);
-          for(var obj in raw_data){
-            var tmp = raw_data[obj].name + " : " + raw_data[obj].note + "\n";
-            $scope.items.push(tmp);
-            $rootScope.$broadcast('add', tmp);
-          }
+          socket.emit('chat', raw_data);
         })
       }
       
       $scope.emit_msg = function(){
-        //var user_self = {username: $scope.name_text, input_text: chat_text};
-        socket.emit('chat', {username: $scope.name_text, input_text: $scope.chat_text});
-        $http.post('http://localhost:3000/todos', {
-          name: $scope.name_text,
-          completed: "True",
-          note: $scope.chat_text,
-          updated_at: Date.now,
-        });
+        var tmp_data = {name: $scope.name_text, completed: true, note: $scope.chat_text}
+        $scope.messages.push(tmp_data);
+        socket.emit('chat', $scope.messages);
+        $http.post('http://localhost:3000/todos', tmp_data);
       }
 
-    });
-    app.directive('myText', ['$rootScope', function($rootScope) {
-      return {
-        link: function(scope, element, attrs) {
-          $rootScope.$on('add', function(e, val) {
-            var domElement = element[0];
-
-            if (document.selection) {
-              domElement.focus();
-              var sel = document.selection.createRange();
-              sel.text = val;
-              domElement.focus();
-            } else if (domElement.selectionStart || domElement.selectionStart === 0) {
-              var startPos = domElement.selectionStart;
-              var endPos = domElement.selectionEnd;
-              //var scrollTop = domElement.scrollTop;
-              domElement.value = domElement.value.substring(0, startPos) + val + domElement.value.substring(endPos, domElement.value.length);
-              domElement.focus();
-              domElement.selectionStart = startPos + val.length;
-              domElement.selectionEnd = startPos + val.length;
-              domElement.scrollTop = domElement.scrollHeight;
-            } else {
-              domElement.value += val;
-              domElement.focus();
-            }
-
-          });
-        }
-      }
-    }]);
+    })
 
   body
-    div(ng-app='chatApp' ng-controller='chatCtrl' ng-init="flag=0; val1=123; val2=567;")
-      h1(ng-show='!flag') &nbsp;&nbsp;Chat Room
-      blockquote
-        p(ng-show='!flag') Enter your name ：&nbsp;&nbsp;
-        input(ng-show='!flag' type='text' ng-model='name_text' ng-enter='doSomething()')
-        &nbsp;&nbsp;
-        button(ng-show='!flag' ng-click='flag=1; first_load();') start
-        h1(ng-show='flag') &nbsp;&nbsp;Hello {{name_text}}, Welcome to chat !
-      blockquote
-        textarea(ng-show='flag' ng-model='chat_display' my-text="" style = "font-size: 20px;" rows = "10" cols = "80" readonly = "readonly")  
-        br
-        br
-        input(ng-show='flag' type='text' ng-model='chat_text' style="overflow:auto; width:820px; height:20px;")
-        &nbsp;&nbsp;  
-        button(ng-show='flag' ng-model='chat_button' ng-click='emit_msg(); chat_text="";') send
+    div(ng-app = "chatApp" ng-controller = "chatCtrl" ng-init = "flag=0; val1=123; val2=567; init();")
+      div(ng-show = "!flag")
+        h1 &nbsp;&nbsp;Chat Room
+        blockquote
+          h4 Enter your name：
+          form(role = "form")
+            div(class = "form-group")
+              div(class = "col-xs-2")
+                input(type = "text" class = "form-control" placeholder = "Name" ng-model = "name_text" style = "overflow:auto; width:200px;")
+              div(class = "col-xs-3")
+                button(type = "button" class = "btn btn-primary" ng-click = "flag=1; first_load();") START
+      div(ng-show="flag")
+        //-center
+        h1 &nbsp;&nbsp;Hello {{name_text}}, Welcome to chat !
+        blockquote
+          form(class="form-inline" role="form")
+            div(scroll-glue-bottom="glued" class = "form-control" ng-model = "chat_display" style = "backgroud: white; overflow:auto; width:820px; height: 400px;")
+              //-span(ng-repeat="chat in messages track by $index") <b>{{chat.name}} :</b> {{chat.note}} <br/>
+              p(ng-repeat="chat in messages track by $index") <b>{{chat.name}} :</b> {{chat.note}}
+            &nbsp;&nbsp;
+            div(class = "form-control" ng-model = "user_display" style = "backgroud: white; overflow:auto; width:220px; height: 400px;")
+              p(ng-repeat="user in users track by $index") <b>{{user}}</b>
+          br
+          form(class="form-inline" role="form")
+            input(type = "text" class = "form-control" ng-model = "chat_text" style = "overflow:auto; width:820px;")
+            &nbsp;&nbsp;
+            button(type = "button" class = "btn btn-primary" ng-model = "chat_button" ng-click = "emit_msg(); chat_text='';") Send
